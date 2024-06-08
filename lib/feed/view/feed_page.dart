@@ -1,4 +1,5 @@
 import 'package:congress_explorer/feed/feed.dart';
+import 'package:congress_explorer/utils.dart';
 import 'package:congress_repository/congress_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -43,7 +44,7 @@ class FeedView extends StatelessWidget {
   }
 }
 
-class FeedItem extends StatelessWidget {
+class FeedItem extends StatefulWidget {
   const FeedItem(
     this.bill, {
     super.key,
@@ -52,11 +53,47 @@ class FeedItem extends StatelessWidget {
   final Bill bill;
 
   @override
+  State<FeedItem> createState() => _FeedItemState();
+}
+
+class _FeedItemState extends State<FeedItem> {
+  bool _isRelative = true;
+
+  @override
   Widget build(BuildContext context) {
     return Card(
-      child: ListTile(
-        title: Text(bill.title),
-        subtitle: Text('No. ${bill.number}'),
+      child: ExpansionTile(
+        title: Text(widget.bill.title),
+        subtitle: Text('No. ${widget.bill.number}'),
+        leading: const Icon(Icons.document_scanner),
+        trailing: TextButton(
+          onPressed: () => setState(
+            () => _isRelative = !_isRelative,
+          ),
+          child: Text(
+            '''${_isRelative ? widget.bill.latestAction?.$1.timeAgo : widget.bill.latestAction?.$1.localDate}''',
+          ),
+        ),
+        children: [
+          ListView.separated(
+            shrinkWrap: true,
+            itemBuilder: (context, index) {
+              final story = widget.bill.relatedStories[index];
+              return ListTile(
+                title: Text(story.headline),
+                subtitle: Text(story.source),
+                trailing: IconButton(
+                  icon: const Icon(
+                    Icons.arrow_forward,
+                  ),
+                  onPressed: () => openUrl(story.url),
+                ),
+              );
+            },
+            separatorBuilder: (context, index) => const Divider(),
+            itemCount: widget.bill.relatedStories.length,
+          ),
+        ],
       ),
     );
   }

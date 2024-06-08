@@ -8,14 +8,24 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const demoKey = String.fromEnvironment('CONGRESS_GOV_API_KEY');
+    const congressKey = String.fromEnvironment('CONGRESS_GOV_API_KEY');
+    const newsKey = String.fromEnvironment('RELATED_NEWS_API_KEY');
+
     return MaterialApp(
       theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          brightness: Brightness.dark,
+          seedColor: Colors.lightBlue,
+        ),
         appBarTheme: const AppBarTheme(),
+        brightness: Brightness.dark,
         useMaterial3: true,
       ),
       home: RepositoryProvider(
-        create: (context) => CongressRepository(apiKey: demoKey),
+        create: (context) => CongressRepository(
+          congressKey: congressKey,
+          relatedNewsKey: newsKey,
+        ),
         child: Scaffold(
           body: const FeedPage(),
           bottomNavigationBar: BottomNavigationBar(
