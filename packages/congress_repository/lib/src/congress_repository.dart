@@ -38,11 +38,11 @@ class CongressRepository {
 
       final storiesResponse = await client.get(
         Uri(
-          host: 'newsapi.org',
-          path: '/v2/everything',
+          host: 'api.thenewsapi.com',
+          path: '/v1/news/all',
           queryParameters: {
-            'apiKey': relatedNewsKey,
-            'q': b['title'],
+            'api_token': relatedNewsKey,
+            'search': b['title'],
           },
           scheme: 'https',
         ),
@@ -52,7 +52,7 @@ class CongressRepository {
 
       final decodedStoriesResponse = jsonDecode(storiesResponse.body);
 
-      final articles = decodedStoriesResponse['articles'] as List<dynamic>;
+      final articles = decodedStoriesResponse['data'] as List<dynamic>;
 
       final stories = <Story>[];
 
@@ -66,7 +66,7 @@ class CongressRepository {
           stories.add(
             Story(
               headline: article['title'] as String,
-              source: '${article['source']['name']}',
+              source: '${article['source']}',
               url: Uri.parse(article['url'] as String),
             ),
           );
