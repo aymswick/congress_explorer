@@ -36,13 +36,34 @@ class CongressRepository {
     for (final b in decodedResponse['bills'] as List<dynamic>) {
       final latestAction = b['latestAction'] as Map<String, dynamic>?;
 
+      bills.add(
+        Bill(
+          number: int.parse(b['number'] as String),
+          title: b['title'] as String,
+          url: Uri.parse('${b['url']}'),
+          latestAction: (
+            DateTime.parse(latestAction?['actionDate'] as String),
+            latestAction?['text'] as String
+          ),
+        ),
+      );
+    }
+
+    /// Assemble related stories for each bill via newsapi.org
+    /// key: 4870112ea27f43dba02242a9c0833e3a
+
+    return bills;
+  }
+
+  Future<List<Story>> getRelatedStories(String billTitle) async {
+    try {
       final storiesResponse = await client.get(
         Uri(
           host: 'api.thenewsapi.com',
           path: '/v1/news/all',
           queryParameters: {
             'api_token': relatedNewsKey,
-            'search': b['title'],
+            'search': billTitle,
           },
           scheme: 'https',
         ),
@@ -73,33 +94,16 @@ class CongressRepository {
         }
       }
 
-      bills.add(
-        Bill(
-          number: int.parse(b['number'] as String),
-          title: b['title'] as String,
-          url: Uri.parse('${b['url']}'),
-          latestAction: (
-            DateTime.parse(latestAction?['actionDate'] as String),
-            latestAction?['text'] as String
-          ),
-          relatedStories: stories,
+      return stories;
+    } catch (err) {
+      print(err);
+      return [
+        Story(
+          headline: 'Could not load stories',
+          url: Uri.parse('https://example.com'),
+          source: 'API Limit Reached',
         ),
-      );
+      ];
     }
-
-    /// Assemble related stories for each bill via newsapi.org
-    /// key: 4870112ea27f43dba02242a9c0833e3a
-
-    return bills.isNotEmpty
-        ? bills
-        : List.filled(
-            10,
-            Bill(
-              number: 0,
-              title: 'Test',
-              url: Uri.parse('https://google.com'),
-              latestAction: (DateTime.now(), 'Demo Action'),
-            ),
-          );
   }
 }

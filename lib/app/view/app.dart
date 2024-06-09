@@ -1,10 +1,18 @@
+import 'package:congress_explorer/about/about.dart';
 import 'package:congress_explorer/feed/feed.dart';
 import 'package:congress_repository/congress_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class App extends StatelessWidget {
+class App extends StatefulWidget {
   const App({super.key});
+
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> {
+  int _selectedIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -27,12 +35,14 @@ class App extends StatelessWidget {
           relatedNewsKey: newsKey,
         ),
         child: Scaffold(
-          body: const FeedPage(),
+          body: _selectedIndex == 0 ? const FeedPage() : const AboutPage(),
           bottomNavigationBar: BottomNavigationBar(
+            onTap: (index) => setState(() => _selectedIndex = index),
+            currentIndex: _selectedIndex,
             items: const [
               BottomNavigationBarItem(label: 'Feed', icon: Icon(Icons.feed)),
               BottomNavigationBarItem(
-                label: 'Other',
+                label: 'About',
                 icon: Icon(Icons.question_answer),
               ),
             ],

@@ -27,14 +27,25 @@ class FeedView extends StatelessWidget {
       appBar: AppBar(title: const Text('Feed')),
       body: BlocBuilder<FeedBloc, FeedState>(
         builder: (context, state) {
+          final bills = state.status == FeedStatus.initial
+              ? List.filled(
+                  10,
+                  Bill(
+                    number: 0,
+                    title: 'Test',
+                    url: Uri.parse('https://google.com'),
+                    latestAction: (DateTime.now(), 'Demo Action'),
+                  ),
+                )
+              : state.bills;
           return Skeletonizer(
             enabled: state.bills.isEmpty,
             child: Padding(
               padding: const EdgeInsets.all(8),
               child: ListView.builder(
                 shrinkWrap: true,
-                itemCount: state.bills.length,
-                itemBuilder: (context, index) => FeedItem(state.bills[index]),
+                itemCount: bills.length,
+                itemBuilder: (context, index) => FeedItem(bills[index]),
               ),
             ),
           );
