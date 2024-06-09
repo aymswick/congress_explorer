@@ -4,6 +4,9 @@ import 'package:congress_explorer/member/view/members_page.dart';
 import 'package:congress_repository/congress_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:logger/logger.dart';
+
+final logger = Logger(filter: ProductionFilter());
 
 class App extends StatefulWidget {
   const App({super.key});

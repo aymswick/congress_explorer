@@ -9,7 +9,13 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
   FeedBloc({required this.repository}) : super(const FeedState()) {
     on<FeedRefreshed>((event, emit) async {
       final bills = await repository.getBills();
-      emit(state.copyWith(status: FeedStatus.success, bills: bills));
+      final hearings = await repository.getHearings();
+
+      emit(state.copyWith(
+        status: FeedStatus.success,
+        bills: bills,
+        hearings: hearings,
+      ));
     });
 
     on<FeedItemExpanded>((event, emit) async {

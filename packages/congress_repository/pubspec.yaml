@@ -14,3 +14,4 @@ dependencies:
   equatable: ^2.0.5
   http: ^1.2.1
   logger: ^2.3.0
+  recase: ^4.1.0
