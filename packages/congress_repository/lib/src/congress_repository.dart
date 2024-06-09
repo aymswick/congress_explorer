@@ -1,13 +1,16 @@
 import 'dart:convert';
 
 import 'package:congress_repository/src/models/bill.dart';
+import 'package:congress_repository/src/models/member.dart';
 import 'package:http/http.dart' as http;
+import 'package:logger/logger.dart';
 
 /// Repository layer to handle interaction between client and api.congress.gov
 class CongressRepository {
   /// {@macro congress_repository}
   CongressRepository({required this.congressKey, required this.relatedNewsKey})
-      : client = http.Client();
+      : client = http.Client(),
+        logger = Logger(filter: ProductionFilter());
 
   /// Get a free congressional API key here: https://api.congress.gov/sign-up/
   final String congressKey;
@@ -17,6 +20,42 @@ class CongressRepository {
 
   /// Handles web requests
   final http.Client client;
+
+  /// Log info, debugs, errors
+  final Logger logger;
+
+  /// Returns a list of bills sorted by date of latest action.
+  Future<List<Member>> getMembers() async {
+    final response = await client.get(
+      Uri(
+        host: 'api.congress.gov',
+        path: '/v3/member',
+        queryParameters: {'api_key': congressKey},
+        scheme: 'https',
+      ),
+    );
+
+    final decodedResponse = jsonDecode(response.body);
+
+    /// Retrieve members feed from Congress.gov
+    final members = <Member>[];
+    for (final m in decodedResponse['members'] as List<dynamic>) {
+      final depiction = m['depiction'] as Map<String, dynamic>?;
+
+      members.add(
+        Member(
+          name: m['name'] as String,
+          party: m['partyName'] as String,
+          state: m['state'] as String,
+          imageUrl: depiction != null
+              ? Uri.parse(depiction['imageUrl'] as String)
+              : Uri(),
+        ),
+      );
+    }
+
+    return members;
+  }
 
   /// Returns a list of bills sorted by date of latest action.
   Future<List<Bill>> getBills() async {
@@ -49,12 +88,10 @@ class CongressRepository {
       );
     }
 
-    /// Assemble related stories for each bill via newsapi.org
-    /// key: 4870112ea27f43dba02242a9c0833e3a
-
     return bills;
   }
 
+  /// Assemble related stories for each bill via newsapi.org
   Future<List<Story>> getRelatedStories(String billTitle) async {
     try {
       final storiesResponse = await client.get(
@@ -68,8 +105,6 @@ class CongressRepository {
           scheme: 'https',
         ),
       );
-
-      print(storiesResponse);
 
       final decodedStoriesResponse = jsonDecode(storiesResponse.body);
 
@@ -96,7 +131,7 @@ class CongressRepository {
 
       return stories;
     } catch (err) {
-      print(err);
+      logger.e(err);
       return [
         Story(
           headline: 'Could not load stories',

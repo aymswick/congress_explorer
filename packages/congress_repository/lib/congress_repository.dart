@@ -3,3 +3,4 @@ library;
 
 export 'src/congress_repository.dart';
 export 'src/models/bill.dart';
+export 'src/models/member.dart';

@@ -11,6 +11,21 @@ class Bill extends Equatable {
     this.relatedStories = const [],
   });
 
+  Bill copyWith({
+    int? number,
+    String? title,
+    Uri? url,
+    (DateTime date, String summary)? latestAction,
+    List<Story>? relatedStories,
+  }) =>
+      Bill(
+        number: number ?? this.number,
+        title: title ?? this.title,
+        url: url ?? this.url,
+        latestAction: latestAction ?? this.latestAction,
+        relatedStories: relatedStories ?? this.relatedStories,
+      );
+
   /// Bill No.
   final int number;
 
@@ -27,7 +42,7 @@ class Bill extends Equatable {
   final List<Story> relatedStories;
 
   @override
-  List<Object?> get props => [number, title, url];
+  List<Object?> get props => [number, title, url, latestAction, relatedStories];
 }
 
 /// Related stories from around the web

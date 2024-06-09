@@ -4,7 +4,7 @@ sealed class FeedEvent {}
 
 class FeedRefreshed extends FeedEvent {}
 
-class BillQueried extends FeedEvent {
-  BillQueried(this.bill);
+class FeedItemExpanded extends FeedEvent {
+  FeedItemExpanded(this.bill);
   final Bill bill;
 }

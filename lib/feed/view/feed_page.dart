@@ -45,7 +45,8 @@ class FeedView extends StatelessWidget {
               child: ListView.builder(
                 shrinkWrap: true,
                 itemCount: bills.length,
-                itemBuilder: (context, index) => FeedItem(bills[index]),
+                itemBuilder: (context, index) =>
+                    FeedItem(bills[index], state.status),
               ),
             ),
           );
@@ -57,11 +58,14 @@ class FeedView extends StatelessWidget {
 
 class FeedItem extends StatefulWidget {
   const FeedItem(
-    this.bill, {
+    this.bill,
+    this.status, {
     super.key,
   });
 
   final Bill bill;
+
+  final FeedStatus status;
 
   @override
   State<FeedItem> createState() => _FeedItemState();
@@ -72,6 +76,17 @@ class _FeedItemState extends State<FeedItem> {
 
   @override
   Widget build(BuildContext context) {
+    final stories = widget.status == FeedStatus.loading
+        ? List.filled(
+            3,
+            Story(
+              headline: 'Example Headline',
+              url: Uri.parse('https://google.com'),
+              source: 'Website',
+            ),
+          )
+        : widget.bill.relatedStories;
+
     return Card(
       child: ExpansionTile(
         title: Text(widget.bill.title),
@@ -85,24 +100,33 @@ class _FeedItemState extends State<FeedItem> {
             '''${_isRelative ? widget.bill.latestAction?.$1.timeAgo : widget.bill.latestAction?.$1.localDate}''',
           ),
         ),
+        onExpansionChanged: (value) {
+          if (value == true) {
+            context.read<FeedBloc>().add(FeedItemExpanded(widget.bill));
+          }
+        },
         children: [
-          ListView.separated(
-            shrinkWrap: true,
-            itemBuilder: (context, index) {
-              final story = widget.bill.relatedStories[index];
-              return ListTile(
-                title: Text(story.headline),
-                subtitle: Text(story.source),
-                trailing: IconButton(
-                  icon: const Icon(
-                    Icons.arrow_forward,
+          Skeletonizer(
+            enabled: widget.status == FeedStatus.loading,
+            child: ListView.separated(
+              shrinkWrap: true,
+              itemCount: stories.length,
+              itemBuilder: (context, index) {
+                final story = stories[index];
+                return ListTile(
+                  onTap: () => openUrl(story.url),
+                  title: Text(story.headline),
+                  subtitle: Text(story.source),
+                  trailing: IconButton(
+                    icon: const Icon(
+                      Icons.arrow_forward,
+                    ),
+                    onPressed: () => openUrl(story.url),
                   ),
-                  onPressed: () => openUrl(story.url),
-                ),
-              );
-            },
-            separatorBuilder: (context, index) => const Divider(),
-            itemCount: widget.bill.relatedStories.length,
+                );
+              },
+              separatorBuilder: (context, index) => const Divider(),
+            ),
           ),
         ],
       ),

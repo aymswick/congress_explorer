@@ -1,5 +1,6 @@
 import 'package:congress_explorer/about/about.dart';
 import 'package:congress_explorer/feed/feed.dart';
+import 'package:congress_explorer/member/view/members_page.dart';
 import 'package:congress_repository/congress_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,15 +36,24 @@ class _AppState extends State<App> {
           relatedNewsKey: newsKey,
         ),
         child: Scaffold(
-          body: _selectedIndex == 0 ? const FeedPage() : const AboutPage(),
+          body: switch (_selectedIndex) {
+            0 => const FeedPage(),
+            1 => const MembersPage(),
+            2 => const AboutPage(),
+            _ => const FeedPage()
+          },
           bottomNavigationBar: BottomNavigationBar(
             onTap: (index) => setState(() => _selectedIndex = index),
             currentIndex: _selectedIndex,
             items: const [
               BottomNavigationBarItem(label: 'Feed', icon: Icon(Icons.feed)),
               BottomNavigationBarItem(
+                label: 'People',
+                icon: Icon(Icons.people_alt),
+              ),
+              BottomNavigationBarItem(
                 label: 'About',
-                icon: Icon(Icons.question_answer),
+                icon: Icon(Icons.question_mark),
               ),
             ],
           ),

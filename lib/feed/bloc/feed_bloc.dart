@@ -11,6 +11,28 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
       final bills = await repository.getBills();
       emit(state.copyWith(status: FeedStatus.success, bills: bills));
     });
+
+    on<FeedItemExpanded>((event, emit) async {
+      final index = state.bills.indexOf(event.bill);
+
+      emit(state.copyWith(status: FeedStatus.loading));
+
+      final stories = await repository.getRelatedStories(event.bill.title);
+
+      emit(
+        state.copyWith(
+          status: FeedStatus.success,
+          bills: List.of(state.bills)
+            ..removeAt(
+              index,
+            )
+            ..insert(
+              index,
+              event.bill.copyWith(relatedStories: stories),
+            ),
+        ),
+      );
+    });
   }
 
   final CongressRepository repository;
