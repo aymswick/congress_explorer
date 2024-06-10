@@ -25,7 +25,7 @@ class FeedView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Feed')),
+      appBar: AppBar(title: const Text('Congressional Feed')),
       body: BlocBuilder<FeedBloc, FeedState>(
         builder: (context, state) {
           final bills = state.status == FeedStatus.initial
@@ -52,18 +52,66 @@ class FeedView extends StatelessWidget {
                 )
               : state.hearings;
 
-          final items = [...bills, ...hearings]..shuffle();
-          logger.d(items);
+          final bloc = context.read<FeedBloc>();
+
+          logger.d(state.filter);
+
+          final items = switch (state.filter) {
+            (('hearings', true)) => hearings,
+            (('bills', true)) => bills,
+            (_) => [...hearings, ...bills],
+          };
 
           return Skeletonizer(
             enabled: state.bills.isEmpty || state.hearings.isEmpty,
             child: Padding(
               padding: const EdgeInsets.all(8),
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: items.length,
-                itemBuilder: (context, index) =>
-                    FeedItem(items[index], state.status),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: FilterChip(
+                            avatar: const Icon(
+                              Icons.gavel,
+                              color: Colors.amber,
+                            ),
+                            label: const Text('Hearings'),
+                            selected: state.filter == ('hearings', true),
+                            onSelected: (value) {
+                              bloc.add(FiltersModified(('hearings', value)));
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: FilterChip(
+                            avatar: const Icon(
+                              Icons.document_scanner,
+                              color: Colors.white,
+                            ),
+                            label: const Text('Bills'),
+                            selected: state.filter == ('bills', true),
+                            onSelected: (value) {
+                              bloc.add(FiltersModified(('bills', value)));
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: items.length,
+                      itemBuilder: (context, index) =>
+                          FeedItem(items[index], state.status),
+                    ),
+                  ),
+                ],
               ),
             ),
           );

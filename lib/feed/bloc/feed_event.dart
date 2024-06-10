@@ -8,3 +8,9 @@ class FeedItemExpanded extends FeedEvent {
   FeedItemExpanded(this.bill);
   final Bill bill;
 }
+
+class FiltersModified extends FeedEvent {
+  FiltersModified(this.payload);
+
+  final (String, bool) payload;
+}

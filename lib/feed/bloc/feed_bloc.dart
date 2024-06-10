@@ -11,11 +11,13 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
       final bills = await repository.getBills();
       final hearings = await repository.getHearings();
 
-      emit(state.copyWith(
-        status: FeedStatus.success,
-        bills: bills,
-        hearings: hearings,
-      ));
+      emit(
+        state.copyWith(
+          status: FeedStatus.success,
+          bills: bills,
+          hearings: hearings,
+        ),
+      );
     });
 
     on<FeedItemExpanded>((event, emit) async {
@@ -36,6 +38,15 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
               index,
               event.bill.copyWith(relatedStories: stories),
             ),
+        ),
+      );
+    });
+
+    on<FiltersModified>((event, emit) async {
+      emit(
+        state.copyWith(
+          status: FeedStatus.success,
+          filter: event.payload,
         ),
       );
     });
