@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:congress_explorer/member/bloc/member_bloc.dart';
 import 'package:congress_repository/congress_repository.dart';
 import 'package:flutter/material.dart';
@@ -40,11 +41,13 @@ class MembersPage extends StatelessWidget {
                   return ListTile(
                     title: Text(member.name),
                     subtitle: Text('${member.party} - ${member.state}'),
-                    leading: member.imageUrl != null
-                        ? CircleAvatar(
-                            child: Image.network(member.imageUrl.toString()),
-                          )
-                        : const CircleAvatar(child: Icon(Icons.person)),
+                    leading: CachedNetworkImage(
+                      imageUrl: member.imageUrl?.toString() ?? '',
+                      placeholder: (context, url) =>
+                          const CircularProgressIndicator.adaptive(),
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.person),
+                    ),
                   );
                 },
               ),

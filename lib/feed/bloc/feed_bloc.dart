@@ -10,12 +10,14 @@ class FeedBloc extends Bloc<FeedEvent, FeedState> {
     on<FeedRefreshed>((event, emit) async {
       final bills = await repository.getBills();
       final hearings = await repository.getHearings();
+      final treaties = await repository.getTreaties();
 
       emit(
         state.copyWith(
           status: FeedStatus.success,
           bills: bills,
           hearings: hearings,
+          treaties: treaties,
         ),
       );
     });

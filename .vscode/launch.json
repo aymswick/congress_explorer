@@ -17,7 +17,9 @@
         "--dart-define",
         "CONGRESS_GOV_API_KEY=ir7ihaON3DoYI2MaHAPceATKx0N8YofXcMHtcn3w",
         "--dart-define",
-        "RELATED_NEWS_API_KEY=uPmxuDzhYHWbncwjcbuKWzwVp3giFcMlLT8WLQrc"
+        "RELATED_NEWS_API_KEY=uPmxuDzhYHWbncwjcbuKWzwVp3giFcMlLT8WLQrc",
+        "--web-renderer",
+                "html",
       ]
     },
     {

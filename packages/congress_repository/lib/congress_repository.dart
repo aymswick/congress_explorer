@@ -5,3 +5,4 @@ export 'src/congress_repository.dart';
 export 'src/models/bill.dart';
 export 'src/models/hearing.dart';
 export 'src/models/member.dart';
+export 'src/models/treaty.dart';

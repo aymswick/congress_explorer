@@ -113,6 +113,40 @@ class CongressRepository {
     return members;
   }
 
+  /// Returns a list of treaties (includes only those with topics)
+  Future<List<Treaty>> getTreaties() async {
+    final treaties = <Treaty>[];
+
+    final response = await client.get(
+      Uri(
+        host: 'api.congress.gov',
+        path: '/v3/treaty',
+        queryParameters: {
+          'api_key': congressKey,
+        },
+        scheme: 'https',
+      ),
+    );
+
+    final decodedResponse = jsonDecode(response.body);
+
+    /// Retrieve members feed from Congress.gov
+    for (final t in decodedResponse['treaties'] as List<dynamic>) {
+      if (t['topic'] != null) {
+        treaties.add(
+          Treaty(
+            topic: t['topic'] as String,
+            updateDate: DateTime.parse(t['updateDate'] as String),
+          ),
+        );
+      }
+    }
+
+    logger.d(treaties);
+
+    return treaties;
+  }
+
   /// Returns a list of bills sorted by date of latest action.
   Future<List<Bill>> getBills() async {
     final response = await client.get(

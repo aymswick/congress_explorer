@@ -52,6 +52,16 @@ class FeedView extends StatelessWidget {
                 )
               : state.hearings;
 
+          final treaties = state.status == FeedStatus.initial
+              ? List.filled(
+                  10,
+                  Treaty(
+                    topic: 'Demo',
+                    updateDate: DateTime.now(),
+                  ),
+                )
+              : state.treaties;
+
           final bloc = context.read<FeedBloc>();
 
           logger.d(state.filter);
@@ -59,11 +69,14 @@ class FeedView extends StatelessWidget {
           final items = switch (state.filter) {
             (('hearings', true)) => hearings,
             (('bills', true)) => bills,
-            (_) => [...hearings, ...bills],
+            (('treaties', true)) => treaties,
+            (_) => [...hearings, ...bills, ...treaties],
           };
 
           return Skeletonizer(
-            enabled: state.bills.isEmpty || state.hearings.isEmpty,
+            enabled: state.bills.isEmpty ||
+                state.hearings.isEmpty ||
+                state.treaties.isEmpty,
             child: Padding(
               padding: const EdgeInsets.all(8),
               child: Column(
@@ -97,6 +110,20 @@ class FeedView extends StatelessWidget {
                             selected: state.filter == ('bills', true),
                             onSelected: (value) {
                               bloc.add(FiltersModified(('bills', value)));
+                            },
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: FilterChip(
+                            avatar: const Icon(
+                              Icons.handshake,
+                              color: Colors.red,
+                            ),
+                            label: const Text('Treaties'),
+                            selected: state.filter == ('treaties', true),
+                            onSelected: (value) {
+                              bloc.add(FiltersModified(('treaties', value)));
                             },
                           ),
                         ),
@@ -205,11 +232,35 @@ class _FeedItemState extends State<FeedItem> {
         child: ListTile(
           leading: const Icon(Icons.gavel, color: Colors.amber),
           title: Text(hearing.title),
+          trailing: TextButton(
+            onPressed: () => setState(
+              () => _isRelative = !_isRelative,
+            ),
+            child: Text(
+              '''${_isRelative ? hearing.updateDate?.timeAgo : hearing.updateDate?.localDate}''',
+            ),
+          ),
           onTap: () => openUrl(hearing.transcriptUrl!),
         ),
       );
+    } else if (widget.item is Treaty) {
+      final treaty = widget.item as Treaty;
+      return Card(
+        child: ListTile(
+          leading: const Icon(Icons.handshake, color: Colors.red),
+          title: Text(treaty.topic),
+          trailing: TextButton(
+            onPressed: () => setState(
+              () => _isRelative = !_isRelative,
+            ),
+            child: Text(
+              '''${_isRelative ? treaty.updateDate?.timeAgo : treaty.updateDate?.localDate}''',
+            ),
+          ),
+        ),
+      );
     } else {
-      return const Text('Hohohohohohoho');
+      return const Divider();
     }
   }
 }
