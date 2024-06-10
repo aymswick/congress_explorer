@@ -23,22 +23,22 @@ class _AppState extends State<App> {
     const congressKey = String.fromEnvironment('CONGRESS_GOV_API_KEY');
     const newsKey = String.fromEnvironment('RELATED_NEWS_API_KEY');
 
-    return MaterialApp(
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          brightness: Brightness.dark,
-          seedColor: Colors.lightBlue,
-        ),
-        appBarTheme: const AppBarTheme(),
-        brightness: Brightness.dark,
-        useMaterial3: true,
+    return RepositoryProvider(
+      create: (context) => CongressRepository(
+        congressKey: congressKey,
+        relatedNewsKey: newsKey,
       ),
-      home: RepositoryProvider(
-        create: (context) => CongressRepository(
-          congressKey: congressKey,
-          relatedNewsKey: newsKey,
+      child: MaterialApp(
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(
+            brightness: Brightness.dark,
+            seedColor: Colors.lightBlue,
+          ),
+          appBarTheme: const AppBarTheme(),
+          brightness: Brightness.dark,
+          useMaterial3: true,
         ),
-        child: Scaffold(
+        home: Scaffold(
           body: switch (_selectedIndex) {
             0 => const FeedPage(),
             1 => const MembersPage(),

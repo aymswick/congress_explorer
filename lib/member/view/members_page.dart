@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:congress_explorer/member/bloc/member_bloc.dart';
+import 'package:congress_explorer/utils.dart';
 import 'package:congress_repository/congress_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -39,6 +40,11 @@ class MembersPage extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final member = members[index];
                   return ListTile(
+                    onTap: () => openUrl(
+                      Uri.parse(
+                        'https://www.govtrack.us/search?q=${member.name}',
+                      ),
+                    ),
                     title: Text(member.name),
                     subtitle: Text('${member.party} - ${member.state}'),
                     leading: CachedNetworkImage(

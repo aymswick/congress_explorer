@@ -1,4 +1,5 @@
 import 'package:congress_explorer/app/app.dart';
+import 'package:congress_explorer/bill/view/bill_page.dart';
 import 'package:congress_explorer/feed/feed.dart';
 import 'package:congress_explorer/utils.dart';
 import 'package:congress_repository/congress_repository.dart';
@@ -171,19 +172,11 @@ class _FeedItemState extends State<FeedItem> {
     if (widget.item is Bill) {
       final bill = widget.item as Bill;
 
-      final stories = widget.status == FeedStatus.loading
-          ? List.filled(
-              3,
-              Story(
-                headline: 'Example Headline',
-                url: Uri.parse('https://google.com'),
-                source: 'Website',
-              ),
-            )
-          : bill.relatedStories;
-
       return Card(
-        child: ExpansionTile(
+        child: ListTile(
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => BillPage(bill: bill)),
+          ),
           title: Text(bill.title),
           subtitle: Text('No. ${bill.number}'),
           leading: const Icon(Icons.document_scanner, color: Colors.white),
@@ -195,35 +188,6 @@ class _FeedItemState extends State<FeedItem> {
               '''${_isRelative ? bill.latestAction?.$1.timeAgo : bill.latestAction?.$1.localDate}''',
             ),
           ),
-          onExpansionChanged: (value) {
-            if (value == true) {
-              context.read<FeedBloc>().add(FeedItemExpanded(bill));
-            }
-          },
-          children: [
-            Skeletonizer(
-              enabled: widget.status == FeedStatus.loading,
-              child: ListView.separated(
-                shrinkWrap: true,
-                itemCount: stories.length,
-                itemBuilder: (context, index) {
-                  final story = stories[index];
-                  return ListTile(
-                    onTap: () => openUrl(story.url),
-                    title: Text(story.headline),
-                    subtitle: Text(story.source),
-                    trailing: IconButton(
-                      icon: const Icon(
-                        Icons.arrow_forward,
-                      ),
-                      onPressed: () => openUrl(story.url),
-                    ),
-                  );
-                },
-                separatorBuilder: (context, index) => const Divider(),
-              ),
-            ),
-          ],
         ),
       );
     } else if (widget.item is Hearing) {
